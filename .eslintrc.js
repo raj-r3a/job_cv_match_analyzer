@@ -2,12 +2,13 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     extends: [
       'eslint:recommended',
-      '@typescript-eslint/recommended',
+      'plugin:@typescript-eslint/recommended',
     ],
     plugins: ['@typescript-eslint'],
     parserOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      project: './tsconfig.json', // 👈 Required for rules needing type info
     },
     rules: {
       '@typescript-eslint/no-unused-vars': 'error',
@@ -20,3 +21,4 @@ module.exports = {
       es2022: true,
     },
   };
+  
