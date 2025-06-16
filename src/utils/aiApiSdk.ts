@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { geminiApiConfig } from '../config/constants';
 import { GenerateContentRequest } from '../types';
+import { logger } from './logger';
 
 const apiClient = axios.create({
   headers: {
@@ -10,15 +11,13 @@ const apiClient = axios.create({
 
 export async function generateContentRequest(body: GenerateContentRequest) {
   try {
-    console.log('gemini config', geminiApiConfig);
     const response = await apiClient.post(
       geminiApiConfig.endpoint as string,
       body
     );
-    console.log('response is', response.status, response.data);
     return response.data;
   } catch (error) {
-    console.error({ message: 'http error from generateContentRequest', error });
+    logger.error({ message: 'http error from generateContentRequest', error });
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
 

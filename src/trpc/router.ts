@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { Context } from './context';
 import { analyzeCVWithGemini } from '../services/aiService';
+import { logger } from '../utils';
 
 const t = initTRPC.context<Context>().create();
 
@@ -49,7 +50,7 @@ export const appRouter = t.router({
           },
         };
       } catch (error) {
-        console.error('Analysis error:', error);
+        logger.error({ message: 'Analysis error:', error });
 
         if (error instanceof TRPCError) {
           throw error;

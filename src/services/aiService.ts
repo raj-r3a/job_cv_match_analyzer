@@ -1,5 +1,5 @@
 import { generateContentRequest } from '../utils/aiApiSdk';
-import { formGenerateContentPayloadWithFiles } from '../utils/helpers';
+import { formGenerateContentPayloadWithFiles, logger } from '../utils';
 
 // Rate limiting variables
 let requestCount = 0;
@@ -52,7 +52,7 @@ export async function analyzeCVWithGemini(
       cvBase64
     );
     const response = await generateContentRequest(requestBody);
-    console.debug({
+    logger.debug({
       message: 'received this response from gemini',
       data: JSON.stringify(response),
     });
@@ -79,16 +79,16 @@ export async function analyzeCVWithGemini(
       }
       return finalResult;
     } catch (parseError) {
-      console.warn(
-        'Failed to parse Gemini response as JSON, returning as text'
-      );
+      logger.warn({
+        message: 'Failed to parse Gemini response as JSON, returning as text',
+      });
       return {
         rawAnalysis: analysisText,
         note: 'Analysis returned as text due to JSON parsing issues',
       };
     }
   } catch (error) {
-    console.error('Gemini API error:', error);
+    logger.error({ message: 'Gemini API error:', error });
     throw new Error(
       `Failed to analyze with Gemini: ${error instanceof Error ? error.message : 'Unknown error'}`
     );

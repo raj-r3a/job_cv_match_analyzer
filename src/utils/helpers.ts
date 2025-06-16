@@ -3,15 +3,27 @@ import { GenerateContentRequest, SchemaType } from '../types';
 export function formGenerateContentPayloadWithFiles(jd: string, cv: string) {
   try {
     const prompt = `
-You are an expert HR analyst. Analyze the following CV against the job description and provide a comprehensive assessment.
+You are an expert HR analyst. Your task is to analyze CVs against job descriptions with strict validation.
+
+**CRITICAL VALIDATION RULES:**
+1. BEFORE any analysis, you MUST verify that BOTH documents contain meaningful content
+2. If the job description is empty, contains only whitespace, or has fewer than 50 characters, STOP and return an error
+3. If the CV is empty, contains only whitespace, or has fewer than 100 characters, STOP and return an error
+4. If either document appears to be corrupted, unreadable, or contains only metadata, STOP and return an error
+
+**VALIDATION CHECKLIST - Check these FIRST:**
+- [ ] Job description exists and has substantial content (>50 chars)
+- [ ] Job description contains job-related keywords (role, requirements, responsibilities)
+- [ ] CV exists and has substantial content (>100 chars)  
+- [ ] CV contains resume-related content (experience, skills, education)
+
+**IF VALIDATION FAILS:** Return immediately with the error format shown below.
 
 You will receive two PDF documents:
 1. The first PDF is the **job description**
 2. The second PDF is the **candidate's CV**
 
-Analyze both documents and respond **only** in the following strict JSON format. If you are unsure or the data is missing, fill that field with null or an empty array (as appropriate).
-
-Your response **must include all the fields below**, even if some of them are empty or null.
+**ONLY IF BOTH DOCUMENTS PASS VALIDATION**, analyze them and respond in the following JSON format:
 
 {
   "overallMatch": {
@@ -50,18 +62,10 @@ Your response **must include all the fields below**, even if some of them are em
   "redFlags": [
     "<any concerning aspects that need clarification>"
   ],
-  "error": "<if there is any issue in reading or understanding the PDFs, describe the error message here; otherwise use null>"
+  "error": null
 }
 
-⚠️ Important instructions:
-- Return only the raw JSON.
-- Do **not** omit any fields.
-- If you don’t find relevant content for a field, return null or an empty array, but keep the field.
-- Do not use markdown, code blocks, or extra commentary—just the JSON.
-
-If either PDF is unreadable, set all fields to null and include the error message in the "error" field.
-
-Example error case:
+**ERROR RESPONSE FORMAT** (use when validation fails):
 {
   "overallMatch": null,
   "strengths": null,
@@ -70,9 +74,37 @@ Example error case:
   "experienceAlignment": null,
   "recommendations": null,
   "redFlags": null,
-  "error": "Candidate CV/JD is invalid or could not be processed."
+  "error": "<specific error message>"
 }
+
+**ERROR MESSAGES TO USE:**
+- "Job description is empty or contains insufficient content"
+- "CV is empty or contains insufficient content"  
+- "Job description file is corrupted or unreadable"
+- "CV file is corrupted or unreadable"
+- "Both documents are invalid or could not be processed"
+
+⚠️ **STRICT REQUIREMENTS:**
+- ALWAYS validate documents FIRST before any analysis
+- Return ONLY raw JSON (no markdown, no code blocks, no explanations)
+- NEVER generate analysis for empty or invalid documents
+- NEVER assume or hallucinate content that isn't present
+- If unsure about document validity, err on the side of returning an error
 `;
+
+    const systemInstruction = `
+You are a strict document validator and HR analyst. 
+
+CORE BEHAVIOR:
+- Always validate input documents before analysis
+- Never generate content for empty or invalid inputs
+- Return structured errors for invalid cases
+- Be precise and factual, never assume missing information
+
+VALIDATION PRIORITY:
+Document validation takes absolute priority over being helpful or generating analysis.
+`;
+
     const requestPayload: GenerateContentRequest = {
       contents: [
         {
@@ -95,14 +127,16 @@ Example error case:
         },
       ],
       generationConfig: {
-        maxOutputTokens: 2000,
-        topK: 1,
-        topP: 0.8,
-        temperature: 0.9,
+        temperature: 1,
+        candidateCount: 1,
         responseMimeType: 'application/json',
         responseSchema: {
           type: SchemaType.OBJECT,
           properties: {
+            validationStatus: {
+              type: SchemaType.STRING,
+              enum: ['VALID', 'INVALID_JD', 'INVALID_CV', 'INVALID_BOTH'],
+            },
             overallMatch: {
               type: SchemaType.OBJECT,
               nullable: false,
@@ -174,6 +208,7 @@ Example error case:
           },
         },
       },
+      systemInstruction: systemInstruction,
     };
 
     return requestPayload;
