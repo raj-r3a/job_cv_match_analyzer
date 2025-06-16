@@ -1,24 +1,23 @@
+# Use Node.js LTS version
 FROM node:18-alpine
 
-WORKDIR /app
+# Create app directory
+WORKDIR /usr/src/app
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
-# Copy built application
-COPY dist ./dist
+# Copy source code
+COPY . .
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Build TypeScript code
+RUN npm run build
 
-# Change ownership
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Expose port 80
+EXPOSE 80
 
-EXPOSE 3000
-
+# Start the application
 CMD ["npm", "start"]
