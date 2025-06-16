@@ -37,6 +37,7 @@
   "homepage": "https://github.com/raj-r3a/job_cv_match_analyzer#readme",
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
+    "@raj30/logger": "^1.0.3",
     "@trpc/client": "^10.45.0",
     "@trpc/server": "^10.45.0",
     "axios": "^1.9.0",
