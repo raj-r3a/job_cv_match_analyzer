@@ -9,7 +9,6 @@ services:
       - '3000:80'
     environment:
       - NODE_ENV=production
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+    env_file:
+      - .env
     restart: unless-stopped

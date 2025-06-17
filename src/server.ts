@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
+import { serverConfig } from './config/constants';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from './trpc/router';
 import { createContext } from './trpc/context';
@@ -11,7 +12,7 @@ import { logger } from './utils/logger';
  * Sets up middleware, file upload handling, and tRPC endpoint
  */
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 80;
+const PORT = serverConfig.port as number;
 const HOST = '0.0.0.0';
 
 /**

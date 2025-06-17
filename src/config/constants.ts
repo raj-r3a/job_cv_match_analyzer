@@ -9,3 +9,7 @@ export const geminiApiConfig: Record<string, string | undefined> = {
 export const loggerConfig = {
   logLevel: process.env.LOG_LEVEL || 'debug',
 };
+
+export const serverConfig = {
+  port: process.env.PORT || 80,
+};
