@@ -31,6 +31,12 @@ export async function generateContentRequest(body: GenerateContentRequest) {
         );
       }
 
+      if (status === 429) {
+        throw new Error(
+          'Gemini api is rate limited, Please try after sometime, in about a minute.'
+        );
+      }
+
       if (status === 403) {
         throw new Error(
           'Access to Gemini is forbidden. You might not have the right permissions.'
