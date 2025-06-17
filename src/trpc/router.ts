@@ -6,7 +6,20 @@ import { logger } from '../utils';
 
 const t = initTRPC.context<Context>().create();
 
+/**
+ * tRPC router configuration for the CV analysis API
+ * Provides type-safe endpoints for CV and job description analysis
+ */
 export const appRouter = t.router({
+  /**
+   * Analyzes a CV against a job description
+   * Accepts PDF files for both CV and job description
+   * Returns detailed analysis including match score, strengths, and recommendations
+   *
+   * @throws TRPCError with:
+   * - BAD_REQUEST if files are missing or invalid
+   * - INTERNAL_SERVER_ERROR if analysis fails
+   */
   analyzeCVMatch: t.procedure
     .input(
       z.object({

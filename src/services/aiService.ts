@@ -11,6 +11,12 @@ let lastHourReset = Date.now();
 //   model: 'gemini-1.5-flash',
 // });
 
+/**
+ * Checks and enforces rate limits for API requests
+ * - Limits: 20 requests per minute and 300 requests per hour
+ * - Automatically resets counters when time windows expire
+ * @throws Error if rate limits are exceeded
+ */
 async function rateLimitCheck(): Promise<void> {
   const now = Date.now();
 
@@ -40,6 +46,13 @@ async function rateLimitCheck(): Promise<void> {
   hourlyRequestCount++;
 }
 
+/**
+ * Analyzes a CV against a job description using Google's Gemini AI model
+ * @param jobDescriptionBase64 - Base64 encoded job description PDF
+ * @param cvBase64 - Base64 encoded CV PDF
+ * @returns Analysis result containing match score, strengths, weaknesses, and recommendations
+ * @throws Error if analysis fails or rate limits are exceeded
+ */
 export async function analyzeCVWithGemini(
   jobDescriptionBase64: string,
   cvBase64: string

@@ -1,5 +1,17 @@
 import { GenerateContentRequest, SchemaType } from '../types';
 
+/**
+ * Forms the request payload for the Gemini AI model to analyze CV and job description
+ * Creates a structured prompt with validation rules and expected response format
+ *
+ * @param jd - Base64 encoded job description PDF
+ * @param cv - Base64 encoded CV PDF
+ * @returns GenerateContentRequest payload with:
+ * - System instructions for validation and analysis
+ * - Structured prompt for CV analysis
+ * - Response schema for consistent output format
+ * @throws Error if payload formation fails
+ */
 export function formGenerateContentPayloadWithFiles(jd: string, cv: string) {
   try {
     const prompt = `

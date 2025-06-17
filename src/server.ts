@@ -6,11 +6,20 @@ import { appRouter } from './trpc/router';
 import { createContext } from './trpc/context';
 import { logger } from './utils/logger';
 
+/**
+ * Express server configuration for the CV analysis API
+ * Sets up middleware, file upload handling, and tRPC endpoint
+ */
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 80;
 const HOST = '0.0.0.0';
 
-// Configure multer for file uploads
+/**
+ * Multer configuration for handling PDF file uploads
+ * - Limits file size to 10MB
+ * - Accepts only PDF files
+ * - Stores files in memory for processing
+ */
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -56,8 +65,12 @@ const server = app.listen(PORT, HOST, () => {
   logger.info({ message: `📡 tRPC endpoint: http://${HOST}:${PORT}/trpc` });
 });
 
-// Graceful shutdown function
-const gracefulShutdown = async (signal: string) => {
+/**
+ * Graceful shutdown handler
+ * Ensures clean termination of the server and its resources
+ * @param signal - The termination signal received
+ */
+function gracefulShutdown(signal: string) {
   logger.info({ message: `Received ${signal}. Starting graceful shutdown...` });
 
   server.close(() => {
@@ -72,7 +85,7 @@ const gracefulShutdown = async (signal: string) => {
     });
     process.exit(1);
   }, 10000);
-};
+}
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
